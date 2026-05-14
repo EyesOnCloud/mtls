@@ -1,0 +1,36 @@
+services:
+
+  service-a:
+    build:
+      context: ./service-a
+      dockerfile: Dockerfile
+    container_name: service-a
+    environment:
+      SERVICE_NAME: "service-a"
+      SERVICE_B_URL: "http://service-b:8080"
+      TLS_ENABLED: "false"
+      PORT: "8080"
+    ports:
+      - "8001:8080"
+    networks:
+      - internal-network
+
+  service-b:
+    build:
+      context: ./service-b
+      dockerfile: Dockerfile
+    container_name: service-b
+    environment:
+      SERVICE_NAME: "service-b"
+      TLS_ENABLED: "false"
+      MTLS_ENABLED: "false"
+      PORT: "8080"
+    ports:
+      - "8002:8080"
+    networks:
+      - internal-network
+
+networks:
+  internal-network:
+    driver: bridge
+    name: mtls-network
