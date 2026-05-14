@@ -1,0 +1,47 @@
+services:
+
+  service-a:
+    build:
+      context: ./service-a
+      dockerfile: Dockerfile
+    container_name: service-a
+    environment:
+      SERVICE_NAME: "service-a"
+      SERVICE_B_URL: "https://service-b:8443"
+      TLS_ENABLED: "true"
+      MTLS_ENABLED: "true"
+      CA_CERT_PATH: "/certs/ca/ca.crt"
+      CLIENT_CERT_PATH: "/certs/service-a/service-a.crt"
+      CLIENT_KEY_PATH: "/certs/service-a/service-a.key"
+      PORT: "8080"
+    ports:
+      - "8001:8080"
+    volumes:
+      - ./certs:/certs:ro
+    networks:
+      - internal-network
+
+  service-b:
+    build:
+      context: ./service-b
+      dockerfile: Dockerfile
+    container_name: service-b
+    environment:
+      SERVICE_NAME: "service-b"
+      TLS_ENABLED: "true"
+      MTLS_ENABLED: "true"
+      SERVER_CERT_PATH: "/certs/service-b/service-b.crt"
+      SERVER_KEY_PATH: "/certs/service-b/service-b.key"
+      CA_CERT_PATH: "/certs/ca/ca.crt"
+      PORT: "8443"
+    ports:
+      - "8002:8443"
+    volumes:
+      - ./certs:/certs:ro
+    networks:
+      - internal-network
+
+networks:
+  internal-network:
+    driver: bridge
+    name: mtls-network
